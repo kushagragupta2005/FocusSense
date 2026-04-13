@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FocusSense – Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #020617;
+  --bg2: #0f172a;
+  --bg3: #1e293b;
+  --border: rgba(56,189,248,0.12);
+  --primary: #38bdf8;
+  --primary-dim: rgba(56,189,248,0.08);
+  --green: #22c55e;
+  --green-dim: rgba(34,197,94,0.08);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245,158,11,0.08);
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,0.08);
+  --text: #f8fafc;
+  --muted: rgba(248,250,252,0.5);
+  --mono: 'JetBrains Mono', monospace;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden;
+}
+
+/* ─── SIDEBAR ─────────────────────────────── */
+.sidebar {
+  width: 230px;
+  min-height: 100vh;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  position: fixed;
+  top: 0; bottom: 0; left: 0;
+  z-index: 50;
+}
+
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 36px;
+  padding: 0 8px;
+  letter-spacing: -0.5px;
+}
+
+.nav-lbl {
+  font-size: 0.62rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 10px;
+  margin-bottom: 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 11px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  margin-bottom: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+.nav-item:hover { background: var(--primary-dim); color: var(--primary); }
+.nav-item.active { background: var(--primary-dim); color: var(--primary); font-weight: 600; }
+.nav-item .icon { font-size: 1rem; width: 18px; text-align: center; }
+
+.sidebar-bottom {
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+}
+
+.session-stat {
+  background: var(--primary-dim);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.session-stat .lbl { font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; }
+.session-stat .val { font-family: var(--mono); font-size: 1.05rem; color: var(--primary); font-weight: 700; }
+
+/* ─── MAIN ───────────────────────────────── */
+.main {
+  margin-left: 230px;
+  flex: 1;
+  padding: 28px;
+  max-width: calc(100vw - 230px);
+}
+
+/* ─── TOPBAR ─────────────────────────────── */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 26px;
+}
+
+.topbar h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+.topbar .sub { font-size: 0.85rem; color: var(--muted); margin-top: 3px; }
+
+.topbar-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+
+.focus-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid;
+  transition: all 0.5s;
+  white-space: nowrap;
+}
+.focus-badge.idle   { border-color: var(--muted); color: var(--muted); }
+.focus-badge.low    { border-color: var(--red); color: var(--red); background: var(--red-dim); }
+.focus-badge.medium { border-color: var(--amber); color: var(--amber); background: var(--amber-dim); }
+.focus-badge.high   { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+.focus-badge.deep   { border-color: var(--primary); color: var(--primary); background: var(--primary-dim); }
+
+.pulse {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+
+/* Demo toggle */
+.demo-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--amber-dim);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 0.78rem;
+  color: var(--amber);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.toggle {
+  position: relative;
+  width: 32px; height: 18px;
+}
+.toggle input { display: none; }
+.toggle-slider {
+  position: absolute; inset: 0;
+  background: var(--bg3);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  left: 3px; top: 3px;
+  width: 12px; height: 12px;
+  background: var(--muted);
+  border-radius: 50%;
+  transition: 0.25s;
+}
+input:checked + .toggle-slider { background: var(--amber); }
+input:checked + .toggle-slider::before { transform: translateX(14px); background: #020617; }
+
+/* ─── GRID ───────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 18px;
+}
+
+/* ─── CARD ───────────────────────────────── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 22px;
+  transition: border-color 0.3s;
+}
+.card:hover { border-color: rgba(56,189,248,0.22); }
+
+.card-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.card-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* ─── TIMER ──────────────────────────────── */
+.timer-display {
+  font-family: var(--mono);
+  font-size: 4rem;
+  font-weight: 700;
+  letter-spacing: -2px;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 6px;
+  transition: color 0.4s;
+}
+.timer-display.running { color: var(--green); }
+.timer-display.paused  { color: var(--amber); }
+
+.timer-sub {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 20px;
+}
+
+.timer-controls { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 11px;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; }
+.btn-primary { background: var(--primary); color: #020617; }
+.btn-primary:not(:disabled):hover { background: #0ea5e9; transform: translateY(-1px); }
+.btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:not(:disabled):hover { background: rgba(255,255,255,0.04); }
+.btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+.btn-danger:not(:disabled):hover { background: rgba(239,68,68,0.15); }
+
+/* ─── SCORE RING ─────────────────────────── */
+.ring-wrap { display: flex; align-items: center; gap: 22px; }
+
+.ring-container { position: relative; width: 128px; height: 128px; flex-shrink: 0; }
+.ring-svg { transform: rotate(-90deg); }
+.ring-bg   { fill: none; stroke: var(--bg3); stroke-width: 10; }
+.ring-fill {
+  fill: none;
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 339.3;
+  stroke-dashoffset: 339.3;
+  transition: stroke-dashoffset 1.2s ease, stroke 0.5s;
+}
+
+.ring-inner {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.ring-inner .snum {
+  font-family: var(--mono);
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1;
+  transition: color 0.5s;
+}
+.ring-inner .slbl {
+  font-size: 0.6rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.score-meta { flex: 1; }
+.meta-stat { margin-bottom: 12px; }
+.meta-stat .row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.meta-stat .label { font-size: 0.75rem; color: var(--muted); }
+.meta-stat .val { font-family: var(--mono); font-size: 0.8rem; font-weight: 600; }
+.mini-bar { height: 3px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.mini-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+
+/* ─── ACTIVITY ───────────────────────────── */
+.wz-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 7px; }
+.work-zone {
+  width: 100%;
+  height: 90px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 12px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  resize: none;
+  outline: none;
+  transition: border-color 0.3s;
+  margin-bottom: 14px;
+  line-height: 1.6;
+}
+.work-zone:focus { border-color: var(--primary); }
+.work-zone::placeholder { color: var(--muted); opacity: 0.5; }
+.work-zone:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.rhythm-row { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--muted); margin-bottom: 7px; }
+
+.rhythm-bars {
+  display: flex;
+  gap: 2.5px;
+  height: 38px;
+  align-items: flex-end;
+}
+
+.rbar {
+  flex: 1;
+  background: var(--bg3);
+  border-radius: 2px 2px 0 0;
+  min-height: 2px;
+  transition: height 0.25s, background 0.3s;
+}
+
+/* ─── CHART ──────────────────────────────── */
+#focusChart { width: 100%; border-radius: 8px; display: block; }
+
+/* ─── BREAK CARD ─────────────────────────── */
+.break-full { grid-column: 1 / 3; }
+
+.break-inner { display: flex; align-items: center; gap: 22px; }
+.break-icon { font-size: 2.2rem; flex-shrink: 0; }
+.break-content { flex: 1; }
+.break-content h3 { font-family: 'Syne', sans-serif; font-size: 1rem; margin-bottom: 5px; }
+.break-content p { font-size: 0.8rem; color: var(--muted); }
+
+.break-right { flex: 1; max-width: 280px; }
+.break-timer-txt { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); text-align: right; margin-bottom: 6px; }
+.break-prog { height: 5px; background: var(--bg3); border-radius: 5px; overflow: hidden; }
+.break-prog-fill {
+  height: 100%;
+  background: linear-gradient(to right, var(--green), var(--primary));
+  border-radius: 5px;
+  transition: width 1s linear;
+  width: 0%;
+}
+
+/* ─── SETTINGS OVERLAY ───────────────────── */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(2,6,23,0.65);
+  backdrop-filter: blur(6px);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.overlay.open { opacity: 1; pointer-events: all; }
+
+.drawer {
+  position: fixed;
+  right: -420px; top: 0; bottom: 0;
+  width: 390px;
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  padding: 26px 24px;
+  z-index: 201;
+  transition: right 0.35s cubic-bezier(0.4,0,0.2,1);
+  overflow-y: auto;
+}
+.drawer.open { right: 0; }
+
+.drawer-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 26px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-x { background: none; border: none; color: var(--muted); font-size: 1.1rem; cursor: pointer; }
+.close-x:hover { color: var(--text); }
+
+.sgroup {
+  margin-bottom: 22px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+}
+.sgroup:last-of-type { border-bottom: none; }
+.sgroup-title { font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; }
+.sgroup-desc { font-size: 0.74rem; color: var(--muted); margin-bottom: 14px; }
+
+.srow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.srow label { font-size: 0.82rem; color: var(--muted); }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 120px;
+  height: 3px;
+  background: var(--bg3);
+  border-radius: 3px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+}
+
+.rval { font-family: var(--mono); font-size: 0.78rem; color: var(--primary); width: 52px; text-align: right; }
+
+/* ─── BREAK MODAL ────────────────────────── */
+.break-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(2,6,23,0.88);
+  backdrop-filter: blur(14px);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.break-modal-overlay.show { opacity: 1; pointer-events: all; }
+
+.break-modal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  padding: 50px 40px;
+  text-align: center;
+  max-width: 400px;
+  box-shadow: 0 0 80px rgba(56,189,248,0.1);
+}
+.break-emoji { font-size: 3.5rem; margin-bottom: 16px; }
+.break-modal h2 { font-family: 'Syne', sans-serif; font-size: 1.9rem; margin-bottom: 10px; }
+.break-modal p { color: var(--muted); margin-bottom: 24px; font-size: 0.9rem; }
+.break-cd { font-family: var(--mono); font-size: 3rem; font-weight: 700; color: var(--primary); margin-bottom: 24px; }
+
+/* ─── TOAST ──────────────────────────────── */
+.toast {
+  position: fixed;
+  top: 20px; right: 20px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 18px;
+  min-width: 270px;
+  z-index: 400;
+  transform: translateX(120%);
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.toast.show { transform: translateX(0); }
+.toast-icon { font-size: 1.3rem; flex-shrink: 0; }
+.toast-text strong { display: block; font-size: 0.85rem; margin-bottom: 2px; }
+.toast-text span { font-size: 0.78rem; color: var(--muted); }
+
+/* ─── RESPONSIVE ─────────────────────────── */
+@media(max-width:900px) {
+  .sidebar { width: 56px; padding: 20px 8px; }
+  .logo { font-size: 0.85rem; padding: 0; }
+  .nav-item span:last-child { display: none; }
+  .nav-lbl { display: none; }
+  .session-stat { display: none; }
+  .main { margin-left: 56px; padding: 18px; }
+  .grid { grid-template-columns: 1fr; }
+  .break-full { grid-column: 1; }
+  .timer-display { font-size: 3rem; }
+  .break-inner { flex-wrap: wrap; gap: 16px; }
+  .break-right { max-width: 100%; width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">FocusSense</div>
+
+  <div class="nav-lbl">Main</div>
+  <a class="nav-item active" href="profile.html"><span class="icon">⚡</span><span>Dashboard</span></a>
+  <a class="nav-item" href="report.html"><span class="icon">📊</span><span>Reports</span></a>
+  <a class="nav-item" href="FocusSenseMain.html"><span class="icon">🏠</span><span>Home</span></a>
+
+  <div class="nav-lbl" style="margin-top:18px">Actions</div>
+  <button class="nav-item" id="openSettings"><span class="icon">⚙️</span><span>Settings</span></button>
+  <button class="nav-item" id="sideEndBtn" style="display:none;color:var(--red)"><span class="icon">🛑</span><span>End Session</span></button>
+
+  <div class="sidebar-bottom">
+    <div class="session-stat">
+      <div class="lbl">Sessions Today</div>
+      <div class="val" id="todayCount">0</div>
+    </div>
+    <div class="session-stat" style="margin-bottom:0">
+      <div class="lbl">Total Sessions</div>
+      <div class="val" id="totalCount">0</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <h1>Dashboard</h1>
+      <div class="sub" id="dateLabel"></div>
+    </div>
+    <div class="topbar-right">
+      <label class="demo-toggle-wrap" title="Simulates keyboard activity for demo">
+        🤖 Demo Mode
+        <label class="toggle">
+          <input type="checkbox" id="demoToggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </label>
+      <div class="focus-badge idle" id="focusBadge">
+        <div class="pulse"></div>
+        <span id="focusText">Not Tracking</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid">
+
+    <!-- TIMER CARD -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">Session Timer</div>
+        <span id="sessionLabel" style="font-family:var(--mono);font-size:0.72rem;color:var(--muted)"></span>
+      </div>
+      <div class="timer-display" id="timerDisplay">00:00:00</div>
+      <div class="timer-sub" id="timerSub">Ready to start a new session</div>
+      <div class="timer-controls">
+        <button class="btn btn-primary" id="startBtn">▶ Start</button>
+        <button class="btn btn-secondary" id="pauseBtn" disabled>⏸ Pause</button>
+        <button class="btn btn-danger" id="stopBtn" disabled>⏹ End</button>
+      </div>
+    </div>
+
+    <!-- SCORE CARD -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">Focus Score</div>
+        <span id="scoreTag" style="font-size:0.75rem;color:var(--muted)">—</span>
+      </div>
+      <div class="ring-wrap">
+        <div class="ring-container">
+          <svg class="ring-svg" width="128" height="128" viewBox="0 0 128 128">
+            <circle class="ring-bg" cx="64" cy="64" r="54"/>
+            <circle class="ring-fill" id="ringFill" cx="64" cy="64" r="54"/>
+          </svg>
+          <div class="ring-inner">
+            <div class="snum" id="scoreNum">—</div>
+            <div class="slbl">Focus</div>
+          </div>
+        </div>
+        <div class="score-meta">
+          <div class="meta-stat">
+            <div class="row">
+              <span class="label">Session High</span>
+              <span class="val" id="highVal">—</span>
+            </div>
+            <div class="mini-bar"><div class="mini-fill" id="highFill" style="width:0%;background:var(--primary)"></div></div>
+          </div>
+          <div class="meta-stat">
+            <div class="row">
+              <span class="label">Session Avg</span>
+              <span class="val" id="avgVal">—</span>
+            </div>
+            <div class="mini-bar"><div class="mini-fill" id="avgFill" style="width:0%;background:var(--green)"></div></div>
+          </div>
+          <div class="meta-stat">
+            <div class="row">
+              <span class="label">Keystrokes</span>
+              <span class="val" id="ksVal">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVITY CARD -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">Keyboard Activity</div>
+        <span id="ksCountLabel" style="font-family:var(--mono);font-size:0.72rem;color:var(--muted)">0 keystrokes</span>
+      </div>
+      <div class="wz-label">Type anything in your work zone — only rhythm is analyzed, not content</div>
+      <textarea
+        class="work-zone"
+        id="workZone"
+        placeholder="Start a session, then type here to register activity..."
+        disabled
+      ></textarea>
+      <div class="rhythm-row">
+        <span>Typing Rhythm</span>
+        <span id="rhythmStatus" style="color:var(--primary)">Idle</span>
+      </div>
+      <div class="rhythm-bars" id="rhythmBars"></div>
+    </div>
+
+    <!-- CHART CARD -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">Focus History</div>
+        <span id="chartSub" style="font-size:0.72rem;color:var(--muted)">Last 7 sessions</span>
+      </div>
+      <canvas id="focusChart" height="170"></canvas>
+    </div>
+
+    <!-- BREAK CARD -->
+    <div class="card break-full">
+      <div class="card-hd">
+        <div class="card-title">Break Reminder</div>
+        <span style="font-size:0.72rem;color:var(--green);font-weight:600" id="breakActiveLabel">Standby</span>
+      </div>
+      <div class="break-inner">
+        <div class="break-icon" id="breakIcon">☕</div>
+        <div class="break-content">
+          <h3 id="breakTitle">Start a session to activate break reminders</h3>
+          <p id="breakDesc">A regular break every 25 minutes reduces fatigue and improves retention. Configurable in Settings.</p>
+        </div>
+        <div class="break-right">
+          <div class="break-timer-txt" id="breakTimerTxt">—</div>
+          <div class="break-prog"><div class="break-prog-fill" id="breakFill"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- SETTINGS DRAWER -->
+<div class="overlay" id="overlay">
+  <div class="drawer" id="drawer">
+    <div class="drawer-title">
+      ⚙️ Settings
+      <button class="close-x" id="closeDrawer">✕</button>
+    </div>
+
+    <div class="sgroup">
+      <div class="sgroup-title">⏱ Idle Detection</div>
+      <div class="sgroup-desc">Seconds without keyboard activity before score starts dropping</div>
+      <div class="srow">
+        <label>Idle Threshold</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="range" id="sIdleThreshold" min="5" max="60" step="5" value="10">
+          <span class="rval" id="rIdleThreshold">10s</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sgroup">
+      <div class="sgroup-title">☕ Break Schedule</div>
+      <div class="sgroup-desc">Pomodoro-style intervals — customize to your working style</div>
+      <div class="srow">
+        <label>Focus Block</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="range" id="sBreakInterval" min="10" max="90" step="5" value="25">
+          <span class="rval" id="rBreakInterval">25 min</span>
+        </div>
+      </div>
+      <div class="srow">
+        <label>Break Length</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="range" id="sBreakDuration" min="2" max="20" step="1" value="5">
+          <span class="rval" id="rBreakDuration">5 min</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sgroup">
+      <div class="sgroup-title">🔔 Focus Alert</div>
+      <div class="sgroup-desc">Show a warning toast when focus score drops below this value</div>
+      <div class="srow">
+        <label>Alert Below Score</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="range" id="sAlertThreshold" min="10" max="70" step="5" value="40">
+          <span class="rval" id="rAlertThreshold">40</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sgroup">
+      <div class="sgroup-title">🔔 Browser Notifications</div>
+      <div class="sgroup-desc">Enable OS-level notifications for break reminders</div>
+      <div class="srow">
+        <label id="notifStatus">Permission: Not requested</label>
+        <button class="btn btn-secondary" id="reqNotifBtn" style="padding:7px 13px;font-size:0.78rem">Request</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="saveSettings" style="width:100%;margin-top:6px">✓ Save Settings</button>
+  </div>
+</div>
+
+<!-- BREAK OVERLAY -->
+<div class="break-modal-overlay" id="breakModalOverlay">
+  <div class="break-modal">
+    <div class="break-emoji">🧘</div>
+    <h2>Break Time!</h2>
+    <p id="breakModalDesc">Step away, stretch, and hydrate.<br>Your session is paused automatically.</p>
+    <div class="break-cd" id="breakCd">05:00</div>
+    <button class="btn btn-primary" id="skipBreakBtn" style="width:100%">Skip Break →</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-icon" id="tIcon">✅</div>
+  <div class="toast-text">
+    <strong id="tTitle"></strong>
+    <span id="tMsg"></span>
+  </div>
+</div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════
+//  FOCUSSENSE — DASHBOARD ENGINE
+// ═══════════════════════════════════════════════
+
+// ── DEFAULTS & SETTINGS ────────────────────────
+const DEF = { idleThreshold:10, breakInterval:25, breakDuration:5, alertThreshold:40 };
+let S = { ...DEF, ...JSON.parse(localStorage.getItem('fs_settings') || '{}') };
+
+// ── STATE ──────────────────────────────────────
+let active = false, paused = false;
+let elapsed = 0;             // session seconds
+let tickInt = null;
+let focusScore = 75;
+let sessionHigh = 0;
+let allScores = [];          // rolling list of scores this session
+let scoreSamples = [];       // {t, v} per sample point
+let keyCount = 0;
+let lastActivity = Date.now();
+let kTimings = [];           // inter-keystroke intervals
+let rhythmData = new Array(22).fill(0);
+let breakElapsed = 0;        // seconds since last break
+let inBreak = false;
+let breakCdSecs = 0;
+let breakCdInt = null;
+let demoInt = null;
+let demoOn = false;
+let alertSent = false;       // prevent spam
+let sessionNum = 0;
+
+const SID = 'sess_' + Date.now();
+
+// ── DOM ─────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const timerEl   = $('timerDisplay');
+const timerSub  = $('timerSub');
+const startBtn  = $('startBtn');
+const pauseBtn  = $('pauseBtn');
+const stopBtn   = $('stopBtn');
+const wz        = $('workZone');
+const badge     = $('focusBadge');
+const badgeTxt  = $('focusText');
+const scoreNum  = $('scoreNum');
+const ringFill  = $('ringFill');
+const highVal   = $('highVal');
+const avgVal    = $('avgVal');
+const ksVal     = $('ksVal');
+const ksLabel   = $('ksCountLabel');
+const rhythmSt  = $('rhythmStatus');
+const rhythmEl  = $('rhythmBars');
+const breakTxt  = $('breakTimerTxt');
+const breakFill = $('breakFill');
+const breakLbl  = $('breakActiveLabel');
+const breakTitle= $('breakTitle');
+const breakDesc = $('breakDesc');
+const chartCvs  = $('focusChart');
+const chartCtx  = chartCvs.getContext('2d');
+const toast     = $('toast');
+const sideEnd   = $('sideEndBtn');
+
+// ── INIT ───────────────────────────────────────
+$('dateLabel').textContent = new Date().toLocaleDateString('en-IN', {
+  weekday:'long', day:'numeric', month:'long', year:'numeric'
+});
+
+function loadCounts() {
+  const all = JSON.parse(localStorage.getItem('fs_sessions') || '[]');
+  const today = new Date().toDateString();
+  $('todayCount').textContent = all.filter(s => new Date(s.date).toDateString() === today).length;
+  $('totalCount').textContent = all.length;
+}
+loadCounts();
+
+// ── FORMAT TIME ────────────────────────────────
+function fmt(s) {
+  return [Math.floor(s/3600), Math.floor((s%3600)/60), s%60]
+    .map(n => String(n).padStart(2,'0')).join(':');
+}
+
+// ── SESSION START ──────────────────────────────
+function startSession() {
+  active = true; paused = false;
+  elapsed = 0; allScores = []; scoreSamples = [];
+  keyCount = 0; focusScore = 75; sessionHigh = 0;
+  lastActivity = Date.now(); kTimings = [];
+  rhythmData = new Array(22).fill(0);
+  breakElapsed = 0; alertSent = false;
+  sessionNum++;
+
+  startBtn.disabled = true;
+  pauseBtn.disabled = false;
+  stopBtn.disabled = false;
+  sideEnd.style.display = 'flex';
+  wz.disabled = false;
+  wz.value = '';
+  wz.focus();
+
+  timerEl.className = 'timer-display running';
+  timerSub.textContent = 'Session active — type in the work zone to register activity';
+  $('sessionLabel').textContent = `Session #${sessionNum}`;
+
+  breakTitle.textContent = 'Break reminder is active';
+  breakDesc.textContent = `A ${S.breakDuration}-min break every ${S.breakInterval} minutes. Configured in Settings.`;
+  breakLbl.textContent = 'Active';
+  breakLbl.style.color = 'var(--green)';
+
+  tickInt = setInterval(tick, 1000);
+  toast_show('🚀', 'Session Started', 'Keyboard activity monitoring is live');
+}
+
+// ── PAUSE / RESUME ─────────────────────────────
+function togglePause() {
+  if (!paused) {
+    clearInterval(tickInt);
+    paused = true;
+    pauseBtn.textContent = '▶ Resume';
+    timerEl.className = 'timer-display paused';
+    timerSub.textContent = 'Session paused — click Resume to continue';
+    setBadge('idle', 'Paused');
+    if (demoOn) clearInterval(demoInt);
+  } else {
+    tickInt = setInterval(tick, 1000);
+    paused = false;
+    pauseBtn.textContent = '⏸ Pause';
+    timerEl.className = 'timer-display running';
+    timerSub.textContent = 'Session active';
+    lastActivity = Date.now();
+    if (demoOn) startDemo();
+  }
+}
+
+// ── STOP SESSION ───────────────────────────────
+function stopSession() {
+  if (!confirm('End this focus session and view your report?')) return;
+  clearInterval(tickInt);
+  if (demoOn) { clearInterval(demoInt); demoOn = false; }
+  saveAndRedirect();
+}
+
+function saveAndRedirect() {
+  active = false;
+  const avg = allScores.length ? Math.round(allScores.reduce((a,b)=>a+b,0)/allScores.length) : 0;
+
+  const all = JSON.parse(localStorage.getItem('fs_sessions') || '[]');
+  const data = {
+    id: SID,
+    date: new Date().toISOString(),
+    duration: elapsed,
+    avgScore: avg,
+    maxScore: sessionHigh,
+    keystrokeCount: keyCount,
+    scores: scoreSamples
+  };
+  all.push(data);
+  localStorage.setItem('fs_sessions', JSON.stringify(all));
+  localStorage.setItem('fs_lastSession', JSON.stringify(data));
+
+  toast_show('✅', 'Session Saved!', `Avg score: ${avg} — Loading report...`);
+  setTimeout(() => { window.location.href = 'report.html'; }, 1800);
+}
+
+// ── TICK (every 1s) ────────────────────────────
+function tick() {
+  elapsed++;
+  timerEl.textContent = fmt(elapsed);
+
+  breakElapsed++;
+  const breakSecs = S.breakInterval * 60;
+  const rem = breakSecs - breakElapsed;
+
+  if (rem <= 0 && !inBreak) {
+    triggerBreak();
+  } else if (!inBreak) {
+    const pct = (breakElapsed / breakSecs) * 100;
+    breakFill.style.width = Math.min(pct, 100) + '%';
+    const remM = String(Math.floor(rem/60)).padStart(2,'0');
+    const remS = String(rem%60).padStart(2,'0');
+    breakTxt.textContent = `${remM}:${remS} until break`;
+  }
+
+  // Sample score every 5 seconds
+  if (elapsed % 5 === 0) {
+    const score = calcScore();
+    allScores.push(score);
+    scoreSamples.push({ t: elapsed, v: score });
+    updateScoreUI(score);
+    drawLiveChart();
+  }
+}
+
+// ── FOCUS SCORE ALGORITHM ──────────────────────
+function calcScore() {
+  const idleSec = (Date.now() - lastActivity) / 1000;
+  let raw = 100;
+
+  // Penalize idle time beyond threshold
+  if (idleSec > S.idleThreshold) {
+    const over = idleSec - S.idleThreshold;
+    raw -= Math.min(60, over * 2.8);
+  }
+
+  // Analyze typing rhythm consistency
+  if (kTimings.length >= 5) {
+    const recent = kTimings.slice(-12);
+    const avg = recent.reduce((a,b)=>a+b,0) / recent.length;
+    if (avg > 0) {
+      const variance = recent.reduce((a,b)=>a+Math.pow(b-avg,2),0) / recent.length;
+      const cv = Math.sqrt(variance) / avg;
+      if (cv < 0.4) raw += 6;       // very steady typing
+      else if (cv > 2.5) raw -= 8;  // erratic bursts
+    }
+  } else if (kTimings.length === 0 && idleSec < 2) {
+    raw = 80; // just started
+  }
+
+  // Smooth with EMA
+  focusScore = Math.round(Math.max(0, Math.min(100, 0.65 * focusScore + 0.35 * raw)));
+  if (focusScore > sessionHigh) sessionHigh = focusScore;
+
+  // Alert if score drops low
+  if (focusScore < S.alertThreshold && !alertSent && !inBreak) {
+    toast_show('⚠️', 'Focus Dropping', 'Your attention seems to be drifting. Consider a break.');
+    alertSent = true;
+    setTimeout(() => { alertSent = false; }, 30000);
+  }
+
+  return focusScore;
+}
+
+// ── SCORE UI UPDATE ────────────────────────────
+function updateScoreUI(score) {
+  scoreNum.textContent = score;
+  const circ = 339.3;
+  ringFill.style.strokeDashoffset = circ - (score / 100) * circ;
+
+  let col, cls, txt, tag;
+  if (score >= 80) {
+    col = '#38bdf8'; cls = 'deep'; txt = 'Deep Focus'; tag = '🔵 Deep Flow';
+  } else if (score >= 65) {
+    col = '#22c55e'; cls = 'high'; txt = 'High Focus'; tag = '🟢 Focused';
+  } else if (score >= 45) {
+    col = '#f59e0b'; cls = 'medium'; txt = 'Moderate'; tag = '🟡 Moderate';
+  } else {
+    col = '#ef4444'; cls = 'low'; txt = 'Low Focus'; tag = '🔴 Distracted';
+  }
+
+  ringFill.style.stroke = col;
+  scoreNum.style.color = col;
+  $('scoreTag').textContent = tag;
+  setBadge(cls, txt);
+
+  // Stats
+  highVal.textContent = sessionHigh;
+  $('highFill').style.width = sessionHigh + '%';
+  if (allScores.length) {
+    const avg = Math.round(allScores.reduce((a,b)=>a+b,0) / allScores.length);
+    avgVal.textContent = avg;
+    $('avgFill').style.width = avg + '%';
+  }
+  ksVal.textContent = keyCount;
+}
+
+function setBadge(cls, txt) {
+  badge.className = 'focus-badge ' + cls;
+  badgeTxt.textContent = txt;
+}
+
+// ── RHYTHM VISUALIZATION ───────────────────────
+function initRhythm() {
+  rhythmEl.innerHTML = '';
+  for (let i = 0; i < 22; i++) {
+    const b = document.createElement('div');
+    b.className = 'rbar';
+    rhythmEl.appendChild(b);
+  }
+}
+
+function updateRhythm(intensity) {
+  rhythmData.shift();
+  rhythmData.push(Math.min(1, Math.max(0, intensity)));
+  const bars = rhythmEl.querySelectorAll('.rbar');
+  bars.forEach((b, i) => {
+    const h = 2 + rhythmData[i] * 36;
+    b.style.height = h + 'px';
+    const a = 0.2 + rhythmData[i] * 0.8;
+    if (rhythmData[i] > 0.6) b.style.background = `rgba(56,189,248,${a})`;
+    else if (rhythmData[i] > 0.25) b.style.background = `rgba(34,197,94,${a})`;
+    else b.style.background = 'var(--bg3)';
+  });
+  rhythmSt.textContent = intensity > 0.65 ? 'Active ⚡' : intensity > 0.25 ? 'Light 🌊' : 'Idle 💤';
+  rhythmSt.style.color = intensity > 0.65 ? 'var(--primary)' : intensity > 0.25 ? 'var(--green)' : 'var(--muted)';
+}
+
+// ── KEYBOARD TRACKING ──────────────────────────
+wz.addEventListener('keydown', () => {
+  if (!active || paused) return;
+  const now = Date.now();
+  const gap = now - lastActivity;
+  kTimings.push(gap);
+  if (kTimings.length > 30) kTimings.shift();
+  lastActivity = now;
+  keyCount++;
+  ksLabel.textContent = keyCount + ' keystrokes';
+  ksVal.textContent = keyCount;
+
+  const intensity = Math.min(1, 250 / Math.max(40, gap));
+  updateRhythm(intensity);
+});
+
+// ── CANVAS CHARTS ──────────────────────────────
+function drawHistoryChart() {
+  const sessions = JSON.parse(localStorage.getItem('fs_sessions') || '[]').slice(-7);
+  const W = chartCvs.offsetWidth || 300;
+  chartCvs.width = W;
+  chartCvs.height = 170;
+  const H = 170;
+  const pd = { t:18, b:30, l:10, r:10 };
+  chartCtx.clearRect(0,0,W,H);
+
+  if (!sessions.length) {
+    chartCtx.fillStyle = 'rgba(248,250,252,0.25)';
+    chartCtx.font = '13px DM Sans';
+    chartCtx.textAlign = 'center';
+    chartCtx.fillText('No sessions yet — start your first!', W/2, H/2);
+    return;
+  }
+
+  const bW = Math.min(40, (W - pd.l - pd.r) / sessions.length * 0.55);
+  const gap = (W - pd.l - pd.r - bW * sessions.length) / (sessions.length + 1);
+  const maxH = H - pd.t - pd.b;
+
+  sessions.forEach((s, i) => {
+    const x = pd.l + gap + i * (bW + gap);
+    const h = (s.avgScore / 100) * maxH;
+    const y = H - pd.b - h;
+
+    const g = chartCtx.createLinearGradient(0, y, 0, H - pd.b);
+    const col = s.avgScore >= 70 ? '#38bdf8' : s.avgScore >= 50 ? '#22c55e' : '#f59e0b';
+    g.addColorStop(0, col);
+    g.addColorStop(1, col + '18');
+    chartCtx.fillStyle = g;
+    chartCtx.beginPath();
+    chartCtx.roundRect(x, y, bW, h, [4,4,0,0]);
+    chartCtx.fill();
+
+    chartCtx.fillStyle = 'rgba(248,250,252,0.85)';
+    chartCtx.font = '600 10px JetBrains Mono';
+    chartCtx.textAlign = 'center';
+    chartCtx.fillText(s.avgScore, x + bW/2, y - 5);
+
+    const d = new Date(s.date);
+    const lbl = d.toLocaleDateString('en',{weekday:'short'}) + '\n' + d.toLocaleDateString('en',{day:'numeric',month:'short'});
+    chartCtx.fillStyle = 'rgba(248,250,252,0.35)';
+    chartCtx.font = '9px DM Sans';
+    chartCtx.fillText(lbl.split('\n')[0], x + bW/2, H - 16);
+    chartCtx.fillText(lbl.split('\n')[1], x + bW/2, H - 6);
+  });
+}
+
+function drawLiveChart() {
+  const pts = scoreSamples.slice(-40);
+  if (pts.length < 2) return;
+  const W = chartCvs.offsetWidth || 300;
+  chartCvs.width = W;
+  chartCvs.height = 170;
+  const H = 170;
+  const pd = { t:18, b:22, l:10, r:10 };
+  const mH = H - pd.t - pd.b;
+  const step = (W - pd.l - pd.r) / (pts.length - 1);
+
+  chartCtx.clearRect(0,0,W,H);
+
+  // Grid lines
+  [25,50,75].forEach(v => {
+    const y = H - pd.b - (v/100)*mH;
+    chartCtx.beginPath();
+    chartCtx.strokeStyle = 'rgba(255,255,255,0.05)';
+    chartCtx.setLineDash([4,5]);
+    chartCtx.lineWidth = 1;
+    chartCtx.moveTo(pd.l, y);
+    chartCtx.lineTo(W - pd.r, y);
+    chartCtx.stroke();
+    chartCtx.setLineDash([]);
+    chartCtx.fillStyle = 'rgba(248,250,252,0.2)';
+    chartCtx.font = '8px JetBrains Mono';
+    chartCtx.textAlign = 'left';
+    chartCtx.fillText(v, 0, y - 2);
+  });
+
+  // Line path
+  chartCtx.beginPath();
+  pts.forEach((p, i) => {
+    const x = pd.l + i * step;
+    const y = H - pd.b - (p.v/100)*mH;
+    i === 0 ? chartCtx.moveTo(x,y) : chartCtx.lineTo(x,y);
+  });
+  chartCtx.strokeStyle = '#38bdf8';
+  chartCtx.lineWidth = 2;
+  chartCtx.lineJoin = 'round';
+  chartCtx.stroke();
+
+  // Fill
+  const lp = pts[pts.length-1];
+  chartCtx.lineTo(pd.l + (pts.length-1)*step, H - pd.b);
+  chartCtx.lineTo(pd.l, H - pd.b);
+  chartCtx.closePath();
+  const ag = chartCtx.createLinearGradient(0, pd.t, 0, H - pd.b);
+  ag.addColorStop(0,'rgba(56,189,248,0.22)');
+  ag.addColorStop(1,'rgba(56,189,248,0)');
+  chartCtx.fillStyle = ag;
+  chartCtx.fill();
+
+  // Last point dot
+  const lx = pd.l + (pts.length-1)*step;
+  const ly = H - pd.b - (lp.v/100)*mH;
+  chartCtx.beginPath();
+  chartCtx.arc(lx, ly, 4, 0, Math.PI*2);
+  chartCtx.fillStyle = '#38bdf8';
+  chartCtx.fill();
+
+  $('chartSub').textContent = 'Live session';
+}
+
+// ── BREAK LOGIC ────────────────────────────────
+function triggerBreak() {
+  inBreak = true;
+  breakCdSecs = S.breakDuration * 60;
+  $('breakModalDesc').textContent = `Take a ${S.breakDuration}-minute break. Your session is paused.`;
+  $('breakModalOverlay').classList.add('show');
+  updateBreakCd();
+  breakCdInt = setInterval(() => {
+    breakCdSecs--;
+    updateBreakCd();
+    if (breakCdSecs <= 0) endBreak();
+  }, 1000);
+
+  if (Notification.permission === 'granted') {
+    new Notification('FocusSense – Break Time! ☕', {
+      body: `${S.breakDuration}-minute break after ${S.breakInterval} minutes of focus.`,
+    });
+  }
+  toast_show('☕', 'Break Time!', `${S.breakDuration} min break — step away!`);
+}
+
+function updateBreakCd() {
+  const m = String(Math.floor(breakCdSecs/60)).padStart(2,'0');
+  const s = String(breakCdSecs%60).padStart(2,'0');
+  $('breakCd').textContent = `${m}:${s}`;
+}
+
+function endBreak() {
+  clearInterval(breakCdInt);
+  inBreak = false;
+  breakElapsed = 0;
+  $('breakModalOverlay').classList.remove('show');
+  breakFill.style.width = '0%';
+  lastActivity = Date.now();
+  toast_show('🚀', 'Break Over!', 'Back to focus mode — you got this!');
+}
+
+$('skipBreakBtn').addEventListener('click', endBreak);
+
+// ── DEMO MODE ──────────────────────────────────
+function startDemo() {
+  let phase = 0;
+  demoInt = setInterval(() => {
+    if (!active || paused) return;
+    phase++;
+    const cycle = phase % 50;
+    let intensity;
+    if (cycle < 18) intensity = 0.55 + Math.random() * 0.45;
+    else if (cycle < 24) intensity = 0.1 + Math.random() * 0.25;
+    else if (cycle < 34) intensity = 0;
+    else intensity = 0.35 + Math.random() * 0.5;
+
+    if (intensity > 0.3) {
+      const now = Date.now();
+      const gap = 70 + Math.random() * 220;
+      kTimings.push(gap);
+      if (kTimings.length > 30) kTimings.shift();
+      lastActivity = now;
+      keyCount++;
+      ksLabel.textContent = keyCount + ' keystrokes (demo)';
+      updateRhythm(intensity);
+
+      if (Math.random() > 0.65) {
+        const chars = 'abcdefghijklmnopqrstuvwxyz ,.-';
+        wz.value += chars[Math.floor(Math.random() * chars.length)];
+        if (wz.value.length > 300) wz.value = wz.value.slice(-200);
+        wz.scrollTop = wz.scrollHeight;
+      }
+    } else {
+      updateRhythm(0);
+    }
+  }, 280);
+}
+
+$('demoToggle').addEventListener('change', e => {
+  if (e.target.checked) {
+    if (!active) {
+      toast_show('💡', 'Start a session first', 'Then Demo Mode will auto-simulate typing');
+      e.target.checked = false;
+      return;
+    }
+    demoOn = true;
+    startDemo();
+    toast_show('🤖', 'Demo Mode On', 'Simulating keyboard activity patterns...');
+  } else {
+    demoOn = false;
+    clearInterval(demoInt);
+    toast_show('🛑', 'Demo Mode Off', 'Now tracking your real activity');
+  }
+});
+
+// ── SETTINGS ───────────────────────────────────
+function openSettings() {
+  $('overlay').classList.add('open');
+  $('drawer').classList.add('open');
+}
+function closeSettings() {
+  $('overlay').classList.remove('open');
+  $('drawer').classList.remove('open');
+}
+
+$('openSettings').addEventListener('click', openSettings);
+$('closeDrawer').addEventListener('click', closeSettings);
+$('overlay').addEventListener('click', e => { if(e.target === $('overlay')) closeSettings(); });
+
+const ranges = [
+  { id:'sIdleThreshold',  rid:'rIdleThreshold',  key:'idleThreshold',  sfx:'s' },
+  { id:'sBreakInterval',  rid:'rBreakInterval',   key:'breakInterval',  sfx:' min' },
+  { id:'sBreakDuration',  rid:'rBreakDuration',   key:'breakDuration',  sfx:' min' },
+  { id:'sAlertThreshold', rid:'rAlertThreshold',  key:'alertThreshold', sfx:'' },
+];
+
+ranges.forEach(({ id, rid, key, sfx }) => {
+  const el = $(id), rEl = $(rid);
+  el.value = S[key];
+  rEl.textContent = S[key] + sfx;
+  el.addEventListener('input', () => { rEl.textContent = el.value + sfx; });
+});
+
+$('saveSettings').addEventListener('click', () => {
+  ranges.forEach(({ id, key }) => { S[key] = parseInt($(id).value); });
+  localStorage.setItem('fs_settings', JSON.stringify(S));
+  closeSettings();
+  toast_show('✅', 'Settings Saved', 'New thresholds are active');
+});
+
+$('reqNotifBtn').addEventListener('click', () => {
+  Notification.requestPermission().then(p => {
+    $('notifStatus').textContent = 'Permission: ' + (p === 'granted' ? '✅ Granted' : '❌ Denied');
+    toast_show(p==='granted'?'🔔':'🔕', p==='granted'?'Notifications On':'Permission Denied',
+      p==='granted'?'You\'ll get break reminders':'Enable in browser settings');
+  });
+});
+
+// Check existing notif permission
+if (Notification.permission === 'granted') $('notifStatus').textContent = 'Permission: ✅ Granted';
+if (Notification.permission === 'denied')  $('notifStatus').textContent = 'Permission: ❌ Denied';
+
+// ── TOAST ──────────────────────────────────────
+let toastTO;
+function toast_show(icon, title, msg) {
+  clearTimeout(toastTO);
+  $('tIcon').textContent = icon;
+  $('tTitle').textContent = title;
+  $('tMsg').textContent = msg;
+  toast.classList.add('show');
+  toastTO = setTimeout(() => toast.classList.remove('show'), 4200);
+}
+
+// ── BUTTON WIRING ──────────────────────────────
+startBtn.addEventListener('click', startSession);
+pauseBtn.addEventListener('click', togglePause);
+stopBtn.addEventListener('click', stopSession);
+$('sideEndBtn').addEventListener('click', stopSession);
+
+// ── STARTUP ────────────────────────────────────
+initRhythm();
+drawHistoryChart();
+window.addEventListener('resize', () => {
+  active ? drawLiveChart() : drawHistoryChart();
+});
+</script>
+</body>
+</html>

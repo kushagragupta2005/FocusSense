@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FocusSense – Session Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #020617;
+  --bg2: #0f172a;
+  --bg3: #1e293b;
+  --border: rgba(56,189,248,0.12);
+  --primary: #38bdf8;
+  --primary-dim: rgba(56,189,248,0.08);
+  --green: #22c55e;
+  --green-dim: rgba(34,197,94,0.08);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245,158,11,0.08);
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,0.08);
+  --text: #f8fafc;
+  --muted: rgba(248,250,252,0.5);
+  --mono: 'JetBrains Mono', monospace;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+}
+
+/* ─── SIDEBAR ─────────────────────────────── */
+.sidebar {
+  width: 230px;
+  min-height: 100vh;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  position: fixed;
+  top: 0; bottom: 0; left: 0;
+  z-index: 50;
+}
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 36px;
+  padding: 0 8px;
+}
+.nav-lbl {
+  font-size: 0.62rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 10px;
+  margin-bottom: 8px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 11px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  margin-bottom: 3px;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+.nav-item:hover { background: var(--primary-dim); color: var(--primary); }
+.nav-item.active { background: var(--primary-dim); color: var(--primary); font-weight: 600; }
+.nav-item .icon { font-size: 1rem; width: 18px; text-align: center; }
+
+.sidebar-bottom {
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+}
+.session-count {
+  background: var(--primary-dim);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+}
+.session-count .lbl { font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; }
+.session-count .val { font-family: var(--mono); font-size: 1.1rem; color: var(--primary); font-weight: 700; }
+
+/* ─── MAIN ───────────────────────────────── */
+.main {
+  margin-left: 230px;
+  flex: 1;
+  padding: 28px;
+  max-width: calc(100vw - 230px);
+}
+
+/* ─── TOPBAR ─────────────────────────────── */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+.topbar h1 { font-family: 'Syne', sans-serif; font-size: 1.75rem; font-weight: 700; }
+.topbar .sub { font-size: 0.82rem; color: var(--muted); margin-top: 3px; }
+
+.score-grade {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-radius: 14px;
+  border: 1px solid;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* ─── STAT CARDS ─────────────────────────── */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px;
+  transition: all 0.3s;
+}
+.stat-card:hover { border-color: rgba(56,189,248,0.25); transform: translateY(-2px); }
+
+.stat-card .icon { font-size: 1.5rem; margin-bottom: 14px; display: block; }
+.stat-card .label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+.stat-card .value {
+  font-family: var(--mono);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-card .unit { font-size: 0.75rem; color: var(--muted); font-family: 'DM Sans', sans-serif; }
+
+/* ─── GRID ───────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+/* ─── CARD ───────────────────────────────── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 22px;
+}
+
+.card-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.card-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* ─── TIMELINE CHART ─────────────────────── */
+#timelineChart { width: 100%; display: block; }
+
+/* ─── DISTRIBUTION ───────────────────────── */
+.dist-list { display: flex; flex-direction: column; gap: 14px; }
+
+.dist-item {}
+.dist-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.dist-label { font-size: 0.82rem; }
+.dist-vals { display: flex; gap: 12px; align-items: center; }
+.dist-pct { font-family: var(--mono); font-size: 0.85rem; font-weight: 600; }
+.dist-time { font-size: 0.72rem; color: var(--muted); }
+.dist-bar { height: 5px; background: var(--bg3); border-radius: 5px; overflow: hidden; }
+.dist-fill { height: 100%; border-radius: 5px; transition: width 1s ease; }
+
+/* ─── PERFORMANCE BREAKDOWN ──────────────── */
+.perf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.perf-item {
+  background: var(--bg3);
+  border-radius: 14px;
+  padding: 16px;
+}
+.perf-item .p-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 6px; }
+.perf-item .p-val { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; }
+.perf-item .p-note { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+
+/* ─── INSIGHTS ───────────────────────────── */
+.insights { display: flex; flex-direction: column; gap: 10px; }
+
+.insight {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px;
+  background: var(--bg3);
+  border-radius: 14px;
+  border-left: 3px solid;
+}
+.insight-icon { font-size: 1.1rem; flex-shrink: 0; }
+.insight-text { font-size: 0.82rem; line-height: 1.55; }
+.insight-text strong { display: block; margin-bottom: 2px; font-size: 0.82rem; }
+.insight-text span { color: var(--muted); }
+
+/* ─── HISTORY TABLE ──────────────────────── */
+.hist-table { width: 100%; border-collapse: collapse; }
+.hist-table th {
+  text-align: left;
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.hist-table td {
+  padding: 12px;
+  font-size: 0.82rem;
+  border-bottom: 1px solid rgba(56,189,248,0.06);
+}
+.hist-table tr:last-child td { border-bottom: none; }
+.hist-table tr.current td { background: var(--primary-dim); }
+.score-badge-sm {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 6px;
+}
+
+/* ─── CTA ROW ────────────────────────────── */
+.cta-row {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+}
+.btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-primary { background: var(--primary); color: #020617; }
+.btn-primary:hover { background: #0ea5e9; transform: translateY(-1px); }
+.btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: rgba(255,255,255,0.04); }
+
+/* ─── EMPTY STATE ────────────────────────── */
+.empty {
+  text-align: center;
+  padding: 80px 40px;
+}
+.empty .emoji { font-size: 3.5rem; margin-bottom: 20px; }
+.empty h2 { font-family: 'Syne', sans-serif; font-size: 1.6rem; margin-bottom: 12px; }
+.empty p { color: var(--muted); margin-bottom: 28px; }
+
+/* ─── FADE ───────────────────────────────── */
+.fade { opacity: 0; transform: translateY(16px); animation: fade 0.5s ease forwards; }
+@keyframes fade { to { opacity:1; transform:translateY(0); } }
+.d1 { animation-delay: 0.05s; }
+.d2 { animation-delay: 0.1s; }
+.d3 { animation-delay: 0.15s; }
+.d4 { animation-delay: 0.2s; }
+
+/* ─── RESPONSIVE ─────────────────────────── */
+@media(max-width:900px) {
+  .sidebar { width: 56px; padding: 20px 8px; }
+  .logo { font-size: 0.85rem; padding: 0; }
+  .nav-item span:last-child { display: none; }
+  .nav-lbl, .session-count { display: none; }
+  .main { margin-left: 56px; padding: 18px; }
+  .stat-row { grid-template-columns: 1fr 1fr; }
+  .grid, .grid2 { grid-template-columns: 1fr; }
+}
+@media(max-width:550px) {
+  .stat-row { grid-template-columns: 1fr; }
+  .perf-grid { grid-template-columns: 1fr; }
+  .cta-row { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">FocusSense</div>
+  <div class="nav-lbl">Main</div>
+  <a class="nav-item" href="profile.html"><span class="icon">⚡</span><span>Dashboard</span></a>
+  <a class="nav-item active" href="report.html"><span class="icon">📊</span><span>Reports</span></a>
+  <a class="nav-item" href="FocusSenseMain.html"><span class="icon">🏠</span><span>Home</span></a>
+  <div class="sidebar-bottom">
+    <div class="session-count">
+      <div class="lbl">All Sessions</div>
+      <div class="val" id="allCount">0</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main" id="mainContent"></main>
+
+<script>
+(function () {
+'use strict';
+
+const $ = id => document.getElementById(id);
+const main = $('mainContent');
+
+// ── LOAD DATA ──────────────────────────────────
+const lastSession = JSON.parse(localStorage.getItem('fs_lastSession') || 'null');
+const allSessions = JSON.parse(localStorage.getItem('fs_sessions') || '[]');
+$('allCount').textContent = allSessions.length;
+
+// ── HELPERS ────────────────────────────────────
+function fmt(s) {
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m ${String(sec).padStart(2,'0')}s`;
+  return `${sec}s`;
+}
+
+function gradeColor(score) {
+  if (score >= 80) return { col: '#38bdf8', dim: 'rgba(56,189,248,0.1)', label: 'Excellent' };
+  if (score >= 65) return { col: '#22c55e', dim: 'rgba(34,197,94,0.1)',  label: 'Good' };
+  if (score >= 45) return { col: '#f59e0b', dim: 'rgba(245,158,11,0.1)', label: 'Moderate' };
+  return               { col: '#ef4444', dim: 'rgba(239,68,68,0.1)',   label: 'Low' };
+}
+
+function scoreClass(score) {
+  if (score >= 80) return 'background:rgba(56,189,248,0.15);color:#38bdf8';
+  if (score >= 65) return 'background:rgba(34,197,94,0.15);color:#22c55e';
+  if (score >= 45) return 'background:rgba(245,158,11,0.15);color:#f59e0b';
+  return 'background:rgba(239,68,68,0.15);color:#ef4444';
+}
+
+// ── EMPTY STATE ────────────────────────────────
+if (!lastSession && allSessions.length === 0) {
+  main.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:center;min-height:80vh">
+      <div class="empty">
+        <div class="emoji">📊</div>
+        <h2>No sessions yet</h2>
+        <p>Complete a focus session on the Dashboard to see your report here.</p>
+        <a href="profile.html" class="btn btn-primary">▶ Start First Session</a>
+      </div>
+    </div>`;
+  return;
+}
+
+// ── USE LAST SESSION OR MOST RECENT ───────────
+const sess = lastSession || allSessions[allSessions.length - 1];
+const grade = gradeColor(sess.avgScore);
+
+// Focus state distribution calculation
+function calcDistribution(samples) {
+  if (!samples || samples.length === 0) return { deep:25, high:35, medium:25, low:15 };
+  const counts = { deep:0, high:0, medium:0, low:0 };
+  samples.forEach(p => {
+    const v = p.v !== undefined ? p.v : p;
+    if (v >= 80) counts.deep++;
+    else if (v >= 65) counts.high++;
+    else if (v >= 45) counts.medium++;
+    else counts.low++;
+  });
+  const total = samples.length;
+  return {
+    deep:   Math.round(counts.deep   / total * 100),
+    high:   Math.round(counts.high   / total * 100),
+    medium: Math.round(counts.medium / total * 100),
+    low:    Math.round(counts.low    / total * 100),
+  };
+}
+
+const dist = calcDistribution(sess.scores);
+const distMinutes = k => Math.round(dist[k] / 100 * (sess.duration / 60));
+
+// Keystroke rate (per minute)
+const ksRate = sess.keystrokeCount && sess.duration
+  ? Math.round(sess.keystrokeCount / (sess.duration / 60))
+  : 0;
+
+// Generate insights
+function getInsights(sess, dist, ksRate) {
+  const ins = [];
+  if (sess.avgScore >= 75)
+    ins.push({ col:'#22c55e', icon:'🎯', title:'Strong Focus Session', txt:`Your average score of ${sess.avgScore} puts this in the top tier. Consistent performance throughout.` });
+  else if (sess.avgScore < 50)
+    ins.push({ col:'#ef4444', icon:'⚠️', title:'Room to Improve', txt:'Low average score suggests frequent idle periods. Consider shorter sessions with more frequent breaks.' });
+
+  if (dist.deep + dist.high >= 60)
+    ins.push({ col:'#38bdf8', icon:'🌊', title:'Solid Deep Work Ratio', txt:`${dist.deep + dist.high}% of your session was spent in high or deep focus states. Great flow!` });
+
+  if (ksRate > 0 && ksRate < 15)
+    ins.push({ col:'#f59e0b', icon:'⌨️', title:'Low Typing Activity', txt:`Only ${ksRate} keystrokes/min detected. Are you doing reading-heavy or planning tasks?` });
+
+  if (ksRate >= 30)
+    ins.push({ col:'#22c55e', icon:'⚡', title:'High Activity Session', txt:`${ksRate} keystrokes/min — very active session. Your rhythm analysis showed strong consistency.` });
+
+  if (sess.duration > 3600)
+    ins.push({ col:'#38bdf8', icon:'⏱️', title:'Long Session', txt:`${fmt(sess.duration)} is a solid run. Make sure you took your scheduled breaks to avoid burnout.` });
+
+  if (sess.maxScore >= 90)
+    ins.push({ col:'#22c55e', icon:'🏆', title:'Peak Performance Achieved', txt:`You hit a peak score of ${sess.maxScore}! That\'s deep flow state — note what you were doing then.` });
+
+  if (ins.length === 0)
+    ins.push({ col:'#38bdf8', icon:'📈', title:'Keep Building the Habit', txt:'Every session adds to your focus dataset. Trends improve over multiple sessions.' });
+
+  return ins.slice(0, 4);
+}
+
+const insights = getInsights(sess, dist, ksRate);
+
+// ── RENDER ─────────────────────────────────────
+const sessDate = new Date(sess.date);
+const dateStr  = sessDate.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+const timeStr  = sessDate.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+
+main.innerHTML = `
+<!-- TOPBAR -->
+<div class="topbar fade d1">
+  <div>
+    <h1>Session Report</h1>
+    <div class="sub">${dateStr} at ${timeStr}</div>
+  </div>
+  <div class="score-grade" style="border-color:${grade.col};color:${grade.col};background:${grade.dim}">
+    <span style="font-size:1.2rem">${sess.avgScore >= 80 ? '🔵' : sess.avgScore >= 65 ? '🟢' : sess.avgScore >= 45 ? '🟡' : '🔴'}</span>
+    ${sess.avgScore} — ${grade.label}
+  </div>
+</div>
+
+<!-- STAT CARDS -->
+<div class="stat-row fade d1">
+  <div class="stat-card">
+    <span class="icon">⏱️</span>
+    <div class="label">Duration</div>
+    <div class="value" style="color:var(--primary)">${fmt(sess.duration)}</div>
+    <div class="unit">Total session time</div>
+  </div>
+  <div class="stat-card">
+    <span class="icon">📊</span>
+    <div class="label">Avg Focus Score</div>
+    <div class="value" style="color:${grade.col}">${sess.avgScore}</div>
+    <div class="unit">${grade.label} performance</div>
+  </div>
+  <div class="stat-card">
+    <span class="icon">🏆</span>
+    <div class="label">Peak Score</div>
+    <div class="value" style="color:var(--green)">${sess.maxScore || sess.avgScore}</div>
+    <div class="unit">Best focus moment</div>
+  </div>
+  <div class="stat-card">
+    <span class="icon">⌨️</span>
+    <div class="label">Keystrokes</div>
+    <div class="value" style="color:var(--amber)">${sess.keystrokeCount || 0}</div>
+    <div class="unit">${ksRate > 0 ? ksRate + '/min avg' : 'Activity tracked'}</div>
+  </div>
+</div>
+
+<!-- TIMELINE + DISTRIBUTION -->
+<div class="grid fade d2">
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title">Focus Timeline</div>
+      <span style="font-size:0.72rem;color:var(--muted)" id="timelineInfo">Score over session</span>
+    </div>
+    <canvas id="timelineChart" height="180"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title">Focus Distribution</div>
+      <span style="font-size:0.72rem;color:var(--muted)">${sess.scores ? sess.scores.length : 0} samples</span>
+    </div>
+    <div class="dist-list">
+      <div class="dist-item">
+        <div class="dist-row">
+          <span class="dist-label">🔵 Deep Flow (80–100)</span>
+          <div class="dist-vals">
+            <span class="dist-pct" style="color:#38bdf8">${dist.deep}%</span>
+            <span class="dist-time">${distMinutes('deep')} min</span>
+          </div>
+        </div>
+        <div class="dist-bar"><div class="dist-fill" id="dFill0" style="width:0%;background:#38bdf8"></div></div>
+      </div>
+      <div class="dist-item">
+        <div class="dist-row">
+          <span class="dist-label">🟢 Focused (65–79)</span>
+          <div class="dist-vals">
+            <span class="dist-pct" style="color:#22c55e">${dist.high}%</span>
+            <span class="dist-time">${distMinutes('high')} min</span>
+          </div>
+        </div>
+        <div class="dist-bar"><div class="dist-fill" id="dFill1" style="width:0%;background:#22c55e"></div></div>
+      </div>
+      <div class="dist-item">
+        <div class="dist-row">
+          <span class="dist-label">🟡 Moderate (45–64)</span>
+          <div class="dist-vals">
+            <span class="dist-pct" style="color:#f59e0b">${dist.medium}%</span>
+            <span class="dist-time">${distMinutes('medium')} min</span>
+          </div>
+        </div>
+        <div class="dist-bar"><div class="dist-fill" id="dFill2" style="width:0%;background:#f59e0b"></div></div>
+      </div>
+      <div class="dist-item">
+        <div class="dist-row">
+          <span class="dist-label">🔴 Distracted (0–44)</span>
+          <div class="dist-vals">
+            <span class="dist-pct" style="color:#ef4444">${dist.low}%</span>
+            <span class="dist-time">${distMinutes('low')} min</span>
+          </div>
+        </div>
+        <div class="dist-bar"><div class="dist-fill" id="dFill3" style="width:0%;background:#ef4444"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PERFORMANCE + INSIGHTS -->
+<div class="grid2 fade d3">
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title">Performance Breakdown</div>
+    </div>
+    <div class="perf-grid">
+      <div class="perf-item">
+        <div class="p-label">Focus Quality</div>
+        <div class="p-val" style="color:${grade.col}">${sess.avgScore}%</div>
+        <div class="p-note">${grade.label}</div>
+      </div>
+      <div class="perf-item">
+        <div class="p-label">Peak Score</div>
+        <div class="p-val" style="color:var(--green)">${sess.maxScore || sess.avgScore}</div>
+        <div class="p-note">Best moment</div>
+      </div>
+      <div class="perf-item">
+        <div class="p-label">Activity Rate</div>
+        <div class="p-val" style="color:var(--amber)">${ksRate > 0 ? ksRate : '—'}</div>
+        <div class="p-note">Keystrokes/min</div>
+      </div>
+      <div class="perf-item">
+        <div class="p-label">Peak State Time</div>
+        <div class="p-val" style="color:var(--primary)">${distMinutes('deep') + distMinutes('high')}m</div>
+        <div class="p-note">High+Deep flow</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title">AI Insights</div>
+    </div>
+    <div class="insights">
+      ${insights.map(i => `
+        <div class="insight" style="border-color:${i.col}">
+          <div class="insight-icon">${i.icon}</div>
+          <div class="insight-text">
+            <strong>${i.title}</strong>
+            <span>${i.txt}</span>
+          </div>
+        </div>`).join('')}
+    </div>
+  </div>
+</div>
+
+<!-- SESSION HISTORY TABLE -->
+<div class="card fade d4" style="margin-bottom:20px">
+  <div class="card-hd">
+    <div class="card-title">Session History</div>
+    <span style="font-size:0.72rem;color:var(--muted)">${allSessions.length} total sessions</span>
+  </div>
+  ${allSessions.length === 0 ? '<p style="color:var(--muted);font-size:0.85rem">No sessions yet.</p>' : `
+  <table class="hist-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Date</th>
+        <th>Duration</th>
+        <th>Avg Score</th>
+        <th>Peak</th>
+        <th>Keystrokes</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${allSessions.slice().reverse().slice(0, 10).map((s, i) => {
+        const d = new Date(s.date);
+        const isCurrent = s.id === sess.id;
+        return `<tr${isCurrent ? ' class="current"' : ''}>
+          <td style="color:var(--muted);font-family:var(--mono)">${allSessions.length - i}</td>
+          <td>${d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'2-digit'})} ${d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</td>
+          <td style="font-family:var(--mono)">${fmt(s.duration)}</td>
+          <td><span class="score-badge-sm" style="${scoreClass(s.avgScore)}">${s.avgScore}</span></td>
+          <td style="font-family:var(--mono);color:var(--green)">${s.maxScore || s.avgScore}</td>
+          <td style="font-family:var(--mono);color:var(--muted)">${s.keystrokeCount || 0}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`}
+</div>
+
+<!-- CTA -->
+<div class="cta-row fade d4">
+  <a href="profile.html" class="btn btn-primary">▶ New Session</a>
+  <button class="btn btn-secondary" onclick="clearHistory()">🗑 Clear All History</button>
+  <a href="FocusSenseMain.html" class="btn btn-secondary">🏠 Home</a>
+</div>
+`;
+
+// ── DRAW TIMELINE CHART ────────────────────────
+function drawTimeline() {
+  const cvs = $('timelineChart');
+  if (!cvs) return;
+  const ctx = cvs.getContext('2d');
+  const W = cvs.offsetWidth || 400;
+  cvs.width = W;
+  cvs.height = 180;
+  const H = 180;
+  const pd = { t:20, b:28, l:14, r:14 };
+  const mH = H - pd.t - pd.b;
+
+  ctx.clearRect(0,0,W,H);
+
+  const pts = sess.scores && sess.scores.length > 1
+    ? sess.scores.map((p, i) => ({ t: i, v: p.v !== undefined ? p.v : p }))
+    : [{ t:0,v:75},{t:1,v:80},{t:2,v:72},{t:3,v:85},{t:4,v:88},{t:5,v:70},{t:6,v:60},{t:7,v:78}];
+
+  if (pts.length > 1) {
+    $('timelineInfo').textContent = `${pts.length} data points`;
+  }
+
+  const stepX = (W - pd.l - pd.r) / (pts.length - 1);
+
+  // Grid
+  [25,50,75,100].forEach(v => {
+    const y = H - pd.b - (v/100)*mH;
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.setLineDash([4,5]);
+    ctx.lineWidth = 1;
+    ctx.moveTo(pd.l, y);
+    ctx.lineTo(W-pd.r, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(248,250,252,0.2)';
+    ctx.font = '8px JetBrains Mono';
+    ctx.textAlign = 'right';
+    ctx.fillText(v, pd.l - 2, y + 3);
+  });
+
+  // Color segments based on score
+  pts.forEach((p, i) => {
+    if (i === 0) return;
+    const prev = pts[i-1];
+    const x1 = pd.l + (i-1)*stepX;
+    const x2 = pd.l + i*stepX;
+    const y1 = H - pd.b - (prev.v/100)*mH;
+    const y2 = H - pd.b - (p.v/100)*mH;
+    const avgV = (prev.v + p.v) / 2;
+
+    const segCol = avgV >= 80 ? '#38bdf8' : avgV >= 65 ? '#22c55e' : avgV >= 45 ? '#f59e0b' : '#ef4444';
+
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.strokeStyle = segCol;
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+  });
+
+  // Fill area under curve
+  ctx.beginPath();
+  pts.forEach((p, i) => {
+    const x = pd.l + i*stepX;
+    const y = H - pd.b - (p.v/100)*mH;
+    i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.lineTo(pd.l + (pts.length-1)*stepX, H-pd.b);
+  ctx.lineTo(pd.l, H-pd.b);
+  ctx.closePath();
+  const ag = ctx.createLinearGradient(0, pd.t, 0, H-pd.b);
+  ag.addColorStop(0, 'rgba(56,189,248,0.12)');
+  ag.addColorStop(1,'rgba(56,189,248,0)');
+  ctx.fillStyle = ag;
+  ctx.fill();
+
+  // Dots for notable points (min and max)
+  const maxPt = pts.reduce((a,b) => a.v > b.v ? a : b);
+  const minPt = pts.reduce((a,b) => a.v < b.v ? a : b);
+
+  [{ pt:maxPt, col:'#22c55e', lbl:'↑'+maxPt.v }, { pt:minPt, col:'#ef4444', lbl:'↓'+minPt.v }].forEach(({ pt, col, lbl }) => {
+    const x = pd.l + pt.t * stepX;
+    const y = H - pd.b - (pt.v/100)*mH;
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, Math.PI*2);
+    ctx.fillStyle = col;
+    ctx.fill();
+    ctx.fillStyle = 'rgba(248,250,252,0.9)';
+    ctx.font = '600 9px JetBrains Mono';
+    ctx.textAlign = 'center';
+    ctx.fillText(lbl, x, y - 9);
+  });
+
+  // X axis time labels
+  const step = Math.max(1, Math.floor(pts.length / 5));
+  pts.forEach((p, i) => {
+    if (i % step !== 0 && i !== pts.length-1) return;
+    const x = pd.l + i*stepX;
+    ctx.fillStyle = 'rgba(248,250,252,0.3)';
+    ctx.font = '9px DM Sans';
+    ctx.textAlign = 'center';
+    const t = p.t * 5; // each sample is 5 seconds
+    const m = Math.floor(t/60), s = t%60;
+    ctx.fillText(`${m}:${String(s).padStart(2,'0')}`, x, H - 8);
+  });
+}
+
+// ── ANIMATE DISTRIBUTION BARS ──────────────────
+function animateBars() {
+  const pcts = [dist.deep, dist.high, dist.medium, dist.low];
+  pcts.forEach((pct, i) => {
+    const el = $(`dFill${i}`);
+    if (el) setTimeout(() => { el.style.width = pct + '%'; }, i * 120 + 200);
+  });
+}
+
+// ── CLEAR HISTORY ──────────────────────────────
+function clearHistory() {
+  if (!confirm('Delete ALL session history? This cannot be undone.')) return;
+  localStorage.removeItem('fs_sessions');
+  localStorage.removeItem('fs_lastSession');
+  location.reload();
+}
+
+// ── INIT ───────────────────────────────────────
+setTimeout(() => {
+  drawTimeline();
+  animateBars();
+}, 100);
+
+window.addEventListener('resize', drawTimeline);
+
+})(); // end IIFE
+</script>
+</body>
+</html>

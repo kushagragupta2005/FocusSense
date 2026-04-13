@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FocusSense – Stay in Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #020617;
+  --bg2: #0f172a;
+  --border: rgba(56,189,248,0.15);
+  --primary: #38bdf8;
+  --green: #22c55e;
+  --text: #f8fafc;
+  --muted: rgba(248,250,252,0.55);
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* CANVAS BG */
+#starCanvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+.container { max-width: 1200px; margin: auto; padding: 30px 24px; position: relative; z-index: 1; }
+
+/* NAV */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 80px;
+  padding: 16px 24px;
+  background: rgba(15,23,42,0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  position: sticky;
+  top: 16px;
+  z-index: 50;
+}
+
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.5px;
+}
+
+.nav-links { display: flex; gap: 24px; }
+.nav-links a {
+  text-decoration: none;
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--primary); }
+
+.cta-btn {
+  background: var(--primary);
+  color: #020617;
+  padding: 10px 22px;
+  border-radius: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.cta-btn:hover { background: #0ea5e9; transform: translateY(-1px); }
+
+/* HERO */
+.hero {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 60px;
+  align-items: center;
+  margin-bottom: 120px;
+  padding-top: 20px;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.3);
+  color: var(--green);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  letter-spacing: 0.5px;
+}
+
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 3.4rem;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+.hero h1 span { color: var(--primary); }
+
+.hero p {
+  font-size: 1.05rem;
+  color: var(--muted);
+  margin-bottom: 36px;
+  max-width: 480px;
+  line-height: 1.7;
+}
+
+.hero-actions { display: flex; gap: 14px; align-items: center; margin-bottom: 40px; }
+
+.secondary-btn {
+  padding: 10px 22px;
+  border-radius: 12px;
+  border: 1px solid rgba(56,189,248,0.35);
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.secondary-btn:hover { background: rgba(56,189,248,0.08); }
+
+.hero-stats {
+  display: flex;
+  gap: 28px;
+}
+.h-stat { border-left: 2px solid var(--border); padding-left: 16px; }
+.h-stat .val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+.h-stat .lab { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+/* MOCK CARD */
+.mock {
+  background: linear-gradient(145deg, #0a1628, #0f172a);
+  border-radius: 26px;
+  padding: 28px;
+  border: 1px solid var(--border);
+  box-shadow: 0 0 100px rgba(56,189,248,0.12), 0 0 0 1px rgba(56,189,248,0.05);
+  animation: floatCard 4s ease-in-out infinite;
+}
+
+@keyframes floatCard {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.mock-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.mock-dots { display: flex; gap: 6px; }
+.mock-dot { width: 10px; height: 10px; border-radius: 50%; }
+.mock-dot.r { background: #ef4444; }
+.mock-dot.y { background: #f59e0b; }
+.mock-dot.g { background: var(--green); }
+
+.mock-status {
+  background: rgba(34,197,94,0.15);
+  color: var(--green);
+  border: 1px solid rgba(34,197,94,0.3);
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mock-pulse {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.4; transform:scale(0.7); }
+}
+
+.mock-timer {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--green);
+  text-align: center;
+  margin: 8px 0 20px;
+  letter-spacing: -1px;
+}
+
+.mock-score-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.mock-score-label { font-size: 0.78rem; color: var(--muted); }
+.mock-score-val { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--primary); font-weight: 600; }
+
+.mock-prog-wrap { margin-bottom: 16px; }
+.mock-prog {
+  height: 5px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.mock-prog-fill {
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(to right, var(--green), var(--primary));
+  animation: fillAnim 2.5s ease-in-out infinite alternate;
+}
+@keyframes fillAnim {
+  from { width: 65%; }
+  to { width: 88%; }
+}
+
+.mock-bars {
+  display: flex;
+  gap: 6px;
+  height: 70px;
+  align-items: flex-end;
+  margin-top: 4px;
+}
+
+.mbar {
+  flex: 1;
+  border-radius: 4px 4px 0 0;
+  animation: barGrow 1.5s ease forwards;
+}
+
+@keyframes barGrow { from { height: 0; } }
+
+/* SECTION */
+section { margin-bottom: 110px; }
+
+.section-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-family: 'Syne', sans-serif;
+  text-align: center;
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  letter-spacing: -0.5px;
+}
+
+.section-sub {
+  text-align: center;
+  color: var(--muted);
+  margin-bottom: 52px;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* FEATURES */
+.features { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+
+.feature {
+  background: rgba(15,23,42,0.8);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(to right, var(--primary), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.feature:hover {
+  transform: translateY(-6px);
+  border-color: rgba(56,189,248,0.35);
+  box-shadow: 0 16px 48px rgba(56,189,248,0.08);
+}
+
+.feature:hover::before { opacity: 1; }
+
+.feature-icon {
+  font-size: 1.6rem;
+  margin-bottom: 14px;
+  display: block;
+}
+
+.feature h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--primary);
+}
+
+.feature p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+/* PRINCIPLES */
+.principles { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+
+.principle {
+  padding: 30px;
+  background: linear-gradient(145deg, #060e1f, #0f172a);
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  transition: all 0.3s;
+}
+
+.principle:hover { border-color: rgba(34,197,94,0.3); }
+
+.principle-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  color: rgba(34,197,94,0.2);
+  margin-bottom: 12px;
+}
+
+.principle h4 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--green);
+}
+.principle p { color: var(--muted); font-size: 0.88rem; line-height: 1.65; }
+
+/* WHO FOR */
+.who-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+
+.who-card {
+  background: rgba(15,23,42,0.7);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 26px 20px;
+  text-align: center;
+  transition: all 0.3s;
+}
+.who-card:hover { border-color: rgba(56,189,248,0.35); transform: translateY(-4px); }
+.who-card .who-icon { font-size: 2.2rem; margin-bottom: 14px; }
+.who-card h3 { font-family: 'Syne', sans-serif; font-size: 0.95rem; margin-bottom: 8px; }
+.who-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+/* CTA */
+.cta-section {
+  background: linear-gradient(135deg, #060e1f, #0d2040);
+  border-radius: 28px;
+  padding: 70px 40px;
+  text-align: center;
+  border: 1px solid var(--border);
+  box-shadow: 0 0 100px rgba(56,189,248,0.08);
+  margin-bottom: 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-section::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(56,189,248,0.08), transparent 70%);
+}
+
+.cta-section h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
+}
+.cta-section p { color: var(--muted); margin-bottom: 32px; font-size: 1rem; }
+
+.sessions-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.2);
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 0.8rem;
+  color: var(--green);
+  margin-bottom: 32px;
+}
+
+/* FOOTER */
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.82rem;
+  padding: 20px 0 30px;
+}
+
+footer a { color: var(--primary); text-decoration: none; }
+
+/* FADE IN */
+.fade-in {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* RESPONSIVE */
+@media(max-width:900px) {
+  .hero { grid-template-columns: 1fr; }
+  .features { grid-template-columns: 1fr 1fr; }
+  .principles { grid-template-columns: 1fr; }
+  .who-grid { grid-template-columns: 1fr 1fr; }
+}
+@media(max-width:550px) {
+  .features, .who-grid { grid-template-columns: 1fr; }
+  .nav-links { display: none; }
+  .hero h1 { font-size: 2.2rem; }
+  .hero-stats { flex-wrap: wrap; gap: 16px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="starCanvas"></canvas>
+
+<div class="container">
+
+<!-- NAV -->
+<nav>
+  <div class="logo">FocusSense</div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#principles">Design</a>
+    <a href="#who">For Who</a>
+    <a href="report.html">Reports</a>
+  </div>
+  <a href="profile.html" class="cta-btn">Open Dashboard →</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero fade-in">
+  <div>
+    <div class="hero-tag">
+      <span class="mock-pulse"></span>
+      Privacy-First Focus Tracking
+    </div>
+    <h1>Master Your <span>Focus</span> Without Being Watched</h1>
+    <p>FocusSense tracks your attention through keyboard rhythm and behavioral signals — no cameras, no screen recording, no data leaving your device.</p>
+
+    <div class="hero-actions">
+      <a href="profile.html" class="cta-btn">▶ Start Session</a>
+      <a href="#features" class="secondary-btn">Explore Features</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="h-stat">
+        <div class="val" id="heroSessions">0</div>
+        <div class="lab">Sessions Tracked</div>
+      </div>
+      <div class="h-stat">
+        <div class="val" id="heroAvg">—</div>
+        <div class="lab">Avg Focus Score</div>
+      </div>
+      <div class="h-stat">
+        <div class="val">100%</div>
+        <div class="lab">Local & Private</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mock">
+    <div class="mock-top">
+      <div class="mock-dots">
+        <div class="mock-dot r"></div>
+        <div class="mock-dot y"></div>
+        <div class="mock-dot g"></div>
+      </div>
+      <div class="mock-status"><span class="mock-pulse"></span> Deep Focus</div>
+    </div>
+
+    <div class="mock-timer" id="mockTimer">00:00:00</div>
+
+    <div class="mock-score-row">
+      <span class="mock-score-label">Focus Score</span>
+      <span class="mock-score-val" id="mockScore">84</span>
+    </div>
+    <div class="mock-prog-wrap">
+      <div class="mock-prog"><div class="mock-prog-fill"></div></div>
+    </div>
+
+    <div class="mock-score-row">
+      <span class="mock-score-label">Typing Rhythm</span>
+      <span class="mock-score-val" style="color:var(--green)">Consistent ⚡</span>
+    </div>
+
+    <div class="mock-bars">
+      <div class="mbar" style="height:55%;background:linear-gradient(to top,#22c55e,#38bdf8)"></div>
+      <div class="mbar" style="height:75%;background:linear-gradient(to top,#22c55e,#38bdf8)"></div>
+      <div class="mbar" style="height:40%;background:linear-gradient(to top,#f59e0b,#22c55e)"></div>
+      <div class="mbar" style="height:88%;background:linear-gradient(to top,#22c55e,#38bdf8)"></div>
+      <div class="mbar" style="height:65%;background:linear-gradient(to top,#22c55e,#38bdf8)"></div>
+      <div class="mbar" style="height:92%;background:linear-gradient(to top,#22c55e,#38bdf8)"></div>
+      <div class="mbar" style="height:78%;background:linear-gradient(to top,#22c55e,#38bdf8)"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div style="text-align:center">
+    <div class="section-tag">Features</div>
+    <h2 class="section-title">Built for Deep Work</h2>
+    <p class="section-sub">Everything you need to understand and improve your attention — nothing that invades your privacy.</p>
+  </div>
+
+  <div class="features">
+    <div class="feature fade-in">
+      <span class="feature-icon">⌨️</span>
+      <h3>Keyboard Rhythm Analysis</h3>
+      <p>Detects focus state through typing cadence, idle gaps, and keystroke patterns without reading any content.</p>
+    </div>
+    <div class="feature fade-in">
+      <span class="feature-icon">🔒</span>
+      <h3>100% Privacy</h3>
+      <p>Zero screen capture, no text logging, no camera. Everything runs locally on your device.</p>
+    </div>
+    <div class="feature fade-in">
+      <span class="feature-icon">📊</span>
+      <h3>Live Focus Score</h3>
+      <p>A real-time 0–100 score based on activity patterns, updated every 5 seconds with animated feedback.</p>
+    </div>
+    <div class="feature fade-in">
+      <span class="feature-icon">☕</span>
+      <h3>Smart Break Reminders</h3>
+      <p>Pomodoro-style notifications that respect your flow — only triggering at configured intervals.</p>
+    </div>
+    <div class="feature fade-in">
+      <span class="feature-icon">📈</span>
+      <h3>Session Reports</h3>
+      <p>Detailed post-session analytics with timeline charts, score distribution, and productivity summaries.</p>
+    </div>
+    <div class="feature fade-in">
+      <span class="feature-icon">⚙️</span>
+      <h3>Configurable Thresholds</h3>
+      <p>Set your own idle timeout, break intervals, and focus alert threshold to match your work style.</p>
+    </div>
+    <div class="feature fade-in">
+      <span class="feature-icon">💾</span>
+      <h3>Local Storage</h3>
+      <p>All session history and settings persist in your browser — no account, no cloud, no sign-up.</p>
+    </div>
+    <div class="feature fade-in">
+      <span class="feature-icon">🤖</span>
+      <h3>Demo Mode</h3>
+      <p>Try the app without typing — auto-simulates realistic keyboard activity to showcase the system.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRINCIPLES -->
+<section id="principles">
+  <div style="text-align:center">
+    <div class="section-tag">Design</div>
+    <h2 class="section-title">Human-Centered Principles</h2>
+    <p class="section-sub">Built on core HCI principles to support rather than surveil.</p>
+  </div>
+
+  <div class="principles">
+    <div class="principle fade-in">
+      <div class="principle-num">01</div>
+      <h4>Visibility of System Status</h4>
+      <p>Color-coded badges and real-time scores keep you informed of your current state without interrupting flow. Deep Focus → Moderate → Distracted, instantly visible.</p>
+    </div>
+    <div class="principle fade-in">
+      <div class="principle-num">02</div>
+      <h4>User Control & Freedom</h4>
+      <p>Pause, resume, and end sessions at any time. All settings are configurable. No lock-in, no dark patterns. You own your attention data completely.</p>
+    </div>
+    <div class="principle fade-in">
+      <div class="principle-num">03</div>
+      <h4>Ethical & Transparent Design</h4>
+      <p>No behavioral manipulation, no engagement loops. FocusSense exists to help you focus better, not to keep you on-screen longer. Privacy by architecture.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHO FOR -->
+<section id="who">
+  <div style="text-align:center">
+    <div class="section-tag">Users</div>
+    <h2 class="section-title">Who Is It For?</h2>
+    <p class="section-sub">Supporting focused minds everywhere.</p>
+  </div>
+
+  <div class="who-grid">
+    <div class="who-card fade-in">
+      <div class="who-icon">🎓</div>
+      <h3>Students</h3>
+      <p>Track study sessions, identify distraction patterns, and get break reminders during long exam prep.</p>
+    </div>
+    <div class="who-card fade-in">
+      <div class="who-icon">💻</div>
+      <h3>Developers</h3>
+      <p>Minimize context-switching overhead, enter deep flow states, and quantify productive coding time.</p>
+    </div>
+    <div class="who-card fade-in">
+      <div class="who-icon">🏠</div>
+      <h3>Remote Workers</h3>
+      <p>Structure work-from-home days with clear session boundaries and productivity visibility.</p>
+    </div>
+    <div class="who-card fade-in">
+      <div class="who-icon">🧠</div>
+      <h3>ADHD Support</h3>
+      <p>Gentle, non-judgmental self-regulation assistance without pressure or punishment mechanics.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section fade-in">
+  <div class="sessions-live">
+    <span class="mock-pulse"></span>
+    <span id="ctaSessions">0 sessions</span> already tracked locally
+  </div>
+  <h2>Ready to Enter Flow State?</h2>
+  <p>Start your first session now. No sign-up. No cloud. Just focus.</p>
+  <a href="profile.html" class="cta-btn" style="font-size:1rem;padding:14px 36px">Open My Dashboard →</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 FocusSense &nbsp;•&nbsp; Designed by <strong>Kushagra Gupta</strong> &nbsp;•&nbsp; VIT Chennai</p>
+  <p style="margin-top:8px">
+    <a href="profile.html">Dashboard</a> &nbsp;·&nbsp;
+    <a href="report.html">Reports</a> &nbsp;·&nbsp;
+    Privacy First
+  </p>
+</footer>
+
+</div>
+
+<script>
+// ── PARTICLE CANVAS ──────────────────────────────
+const canvas = document.getElementById('starCanvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+function initParticles() {
+  particles = [];
+  const count = Math.floor(window.innerWidth / 12);
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.2 + 0.3,
+      vx: (Math.random() - 0.5) * 0.2,
+      vy: (Math.random() - 0.5) * 0.2,
+      alpha: Math.random() * 0.5 + 0.1
+    });
+  }
+}
+
+function drawParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(56,189,248,${p.alpha})`;
+    ctx.fill();
+    p.x += p.vx;
+    p.y += p.vy;
+    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+  });
+  requestAnimationFrame(drawParticles);
+}
+
+resizeCanvas();
+initParticles();
+drawParticles();
+window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
+
+// ── MOCK TIMER ───────────────────────────────────
+let mockSecs = 0;
+const mockTimerEl = document.getElementById('mockTimer');
+setInterval(() => {
+  mockSecs++;
+  const h = String(Math.floor(mockSecs / 3600)).padStart(2,'0');
+  const m = String(Math.floor((mockSecs % 3600)/60)).padStart(2,'0');
+  const s = String(mockSecs % 60).padStart(2,'0');
+  mockTimerEl.textContent = `${h}:${m}:${s}`;
+}, 1000);
+
+// ── MOCK SCORE FLUCTUATION ───────────────────────
+const mockScoreEl = document.getElementById('mockScore');
+let mscore = 84;
+setInterval(() => {
+  mscore = Math.max(60, Math.min(98, mscore + (Math.random()-0.4)*4));
+  mockScoreEl.textContent = Math.round(mscore);
+}, 2000);
+
+// ── PULL SESSION DATA ────────────────────────────
+function loadStats() {
+  const sessions = JSON.parse(localStorage.getItem('fs_sessions') || '[]');
+  document.getElementById('heroSessions').textContent = sessions.length;
+  document.getElementById('ctaSessions').textContent = `${sessions.length} session${sessions.length !== 1 ? 's' : ''}`;
+  if (sessions.length > 0) {
+    const avg = Math.round(sessions.reduce((a,s) => a + s.avgScore, 0) / sessions.length);
+    document.getElementById('heroAvg').textContent = avg;
+  }
+}
+loadStats();
+
+// ── FADE IN ON SCROLL ────────────────────────────
+const fadeEls = document.querySelectorAll('.fade-in');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+fadeEls.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
