@@ -1,3 +1,6 @@
+## 🌐 Live Demo
+👉 https://kushagragupta2005.github.io/FocusSense/
+
 🚀 FocusSense
 
 FocusSense is a privacy-first focus tracking tool that helps users improve productivity using behavioral signals like typing activity, idle time, and app switching — all processed locally without compromising user data.
